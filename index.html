@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Mental Wellness 💙</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    💙 AI Mental Wellness
+</div>
+
+<!-- HERO -->
+<div class="hero">
+    <h1>Feel Heard. Feel Safe. 💙</h1>
+    <p>Your AI companion for emotional support and mindful conversations.</p>
+</div>
+
+
+<!-- CHAT SECTION -->
+<div class="chat-container">
+
+    <div id="chatBox" class="chat-box"></div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your message..." />
+        <button onclick="generateSample()">🎲</button>
+        <button onclick="sendMessage()">➤</button>
+        <button onclick="clearChat()">🗑️</button>
+    </div>
+
+</div>
+
+<!-- FEATURES -->
+<div class="features">
+    <div class="card">🤝 <br> Emotional Support</div>
+    <div class="card">🧠 <br> Smart AI Replies</div>
+    <div class="card">⚡ <br> Instant Response</div>
+    <div class="card">🔒 <br> Private & Safe</div>
+</div>
+
+
+<script>
+    let history = JSON.parse(localStorage.getItem("chatHistory")) || [];
+const samples = [
+    "I feel very sad today",
+    "Today was amazing",
+    "I am really frustrated",
+    "I feel anxious about my future",
+    "I had a good day but I feel stressed",
+    "Sometimes I feel like giving up"
+];
+
+// 🎲 SAMPLE BUTTON
+function generateSample() {
+    document.getElementById("userInput").value =
+        samples[Math.floor(Math.random() * samples.length)];
+}
+
+// 💬 SEND MESSAGE WITH TYPING EFFECT + SPACING
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value;
+
+    if (!message) return;
+
+    const chatBox = document.getElementById("chatBox");
+
+    // USER MESSAGE
+    const userDiv = document.createElement("div");
+    userDiv.className = "message user";
+    userDiv.innerText = message;
+    chatBox.appendChild(userDiv);
+
+    // BOT MESSAGE (Typing...)
+    const botDiv = document.createElement("div");
+    botDiv.className = "message bot";
+    botDiv.innerHTML = "<span class='typing'>Typing...</span>";
+    chatBox.appendChild(botDiv);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ text: message })
+        });
+
+        const data = await response.json();
+        const reply = data.reply;
+        history.push({ user: message, bot: reply });
+localStorage.setItem("chatHistory", JSON.stringify(history));
+
+        // CLEAR typing
+        botDiv.innerHTML = "";
+
+        let i = 0;
+
+        function typeEffect() {
+            if (i < reply.length) {
+
+                const char = reply.charAt(i);
+
+                // ✅ HANDLE SPACING
+                if (char === '\n') {
+                    botDiv.innerHTML += " ";
+                } else {
+                    botDiv.innerHTML += char;
+                }
+
+                i++;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                setTimeout(typeEffect, 20);
+            }
+        }
+
+        typeEffect();
+
+    } catch (error) {
+        botDiv.innerText = "⚠️ Server error";
+    }
+
+    input.value = "";
+}
+
+// ⌨️ ENTER KEY SUPPORT
+document.getElementById("userInput")
+.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
+
+// ✨ MICRO INTERACTION (BUTTON CLICK EFFECT)
+document.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+        btn.style.transform = "scale(0.95)";
+        setTimeout(() => {
+            btn.style.transform = "scale(1)";
+        }, 100);
+    });
+});
+
+function clearChat() {
+    // clear UI
+    document.getElementById("chatBox").innerHTML = "";
+
+    // clear storage
+    localStorage.removeItem("chatHistory");
+}
+
+</script>
+
+</body>
+</html>
