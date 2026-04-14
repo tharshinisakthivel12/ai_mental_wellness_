@@ -158,6 +158,15 @@ function clearChat() {
     localStorage.removeItem("chatHistory");
 }
 
+    window.onload = () => {
+    const chatBox = document.getElementById("chatBox");
+
+    const welcome = document.createElement("div");
+    welcome.className = "message bot";
+    welcome.innerText = "Hi 💙 I'm here to listen. How are you feeling today?";
+
+    chatBox.appendChild(welcome);
+};
 // ✨ BUTTON CLICK ANIMATION
 document.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("click", () => {
