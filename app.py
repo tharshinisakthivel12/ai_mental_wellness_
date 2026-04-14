@@ -9,8 +9,7 @@ CORS(app)
 # 🏠 HOME ROUTE
 @app.route('/')
 def home():
-    return render_template('index.html')
-
+    return "Backend is running 💙"
 
 # ✨ FORMAT FUNCTION (clean spacing)
 def format_reply(text):
