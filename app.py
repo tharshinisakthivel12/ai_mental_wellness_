@@ -88,8 +88,7 @@ def chat():
                 "Take your time… tell me more."
             )
 
-        return jsonify({"reply": format_reply(reply)})
-
+        return jsonify({"reply": reply})
     except Exception as e:
         print("🔥 ERROR:", e)
         return jsonify({"reply": "⚠️ Something went wrong. Please try again."})
