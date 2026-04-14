@@ -42,7 +42,11 @@
 
 
 <script>
-    let history = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+// 💾 LOAD HISTORY
+let history = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+// 🎲 SAMPLE TEXTS
 const samples = [
     "I feel very sad today",
     "Today was amazing",
@@ -52,13 +56,13 @@ const samples = [
     "Sometimes I feel like giving up"
 ];
 
-// 🎲 SAMPLE BUTTON
+// 🎲 GENERATE SAMPLE
 function generateSample() {
     document.getElementById("userInput").value =
         samples[Math.floor(Math.random() * samples.length)];
 }
 
-// 💬 SEND MESSAGE WITH TYPING EFFECT + SPACING
+// 💬 SEND MESSAGE
 async function sendMessage() {
     const input = document.getElementById("userInput");
     const message = input.value;
@@ -67,13 +71,13 @@ async function sendMessage() {
 
     const chatBox = document.getElementById("chatBox");
 
-    // USER MESSAGE
+    // 👤 USER MESSAGE
     const userDiv = document.createElement("div");
     userDiv.className = "message user";
     userDiv.innerText = message;
     chatBox.appendChild(userDiv);
 
-    // BOT MESSAGE (Typing...)
+    // 🤖 BOT TYPING
     const botDiv = document.createElement("div");
     botDiv.className = "message bot";
     botDiv.innerHTML = "<span class='typing'>Typing...</span>";
@@ -90,12 +94,24 @@ async function sendMessage() {
             body: JSON.stringify({ text: message })
         });
 
-        const data = await response.json();
-        const reply = data.reply;
-        history.push({ user: message, bot: reply });
-localStorage.setItem("chatHistory", JSON.stringify(history));
+        // 🔥 CHECK RESPONSE
+        if (!response.ok) {
+            throw new Error("Server not responding");
+        }
 
-        // CLEAR typing
+        const data = await response.json();
+
+        if (!data.reply) {
+            throw new Error("Invalid response");
+        }
+
+        const reply = data.reply;
+
+        // 💾 SAVE HISTORY
+        history.push({ user: message, bot: reply });
+        localStorage.setItem("chatHistory", JSON.stringify(history));
+
+        // CLEAR TYPING
         botDiv.innerHTML = "";
 
         let i = 0;
@@ -105,9 +121,9 @@ localStorage.setItem("chatHistory", JSON.stringify(history));
 
                 const char = reply.charAt(i);
 
-                // ✅ HANDLE SPACING
+                // ✅ PROPER SPACING
                 if (char === '\n') {
-                    botDiv.innerHTML += " ";
+                    botDiv.innerHTML += "<br><br>";
                 } else {
                     botDiv.innerHTML += char;
                 }
@@ -121,13 +137,14 @@ localStorage.setItem("chatHistory", JSON.stringify(history));
         typeEffect();
 
     } catch (error) {
-        botDiv.innerText = "⚠️ Server error";
+        console.log("ERROR:", error);
+        botDiv.innerText = "⚠️ Server connection issue";
     }
 
     input.value = "";
 }
 
-// ⌨️ ENTER KEY SUPPORT
+// ⌨️ ENTER KEY
 document.getElementById("userInput")
 .addEventListener("keypress", function(e) {
     if (e.key === "Enter") {
@@ -135,7 +152,13 @@ document.getElementById("userInput")
     }
 });
 
-// ✨ MICRO INTERACTION (BUTTON CLICK EFFECT)
+// 🗑️ CLEAR CHAT
+function clearChat() {
+    document.getElementById("chatBox").innerHTML = "";
+    localStorage.removeItem("chatHistory");
+}
+
+// ✨ BUTTON CLICK ANIMATION
 document.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("click", () => {
         btn.style.transform = "scale(0.95)";
@@ -144,14 +167,6 @@ document.querySelectorAll("button").forEach(btn => {
         }, 100);
     });
 });
-
-function clearChat() {
-    // clear UI
-    document.getElementById("chatBox").innerHTML = "";
-
-    // clear storage
-    localStorage.removeItem("chatHistory");
-}
 
 </script>
 
