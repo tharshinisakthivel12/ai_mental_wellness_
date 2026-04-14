@@ -9,7 +9,7 @@ async function send() {
     chatBox.innerHTML += `<div class="user">You: ${msg}</div>`;
 
     // API call
-    let res = await fetch("http://127.0.0.1:5000/chat", {
+    let res = await fetch("https://ai-mental-wellness-fyz0.onrender.com/chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({text: msg})
